@@ -35,3 +35,26 @@ F는 Struct
 		AddMovementInput(Forward * Value); // 인자로 들어가는 값은 한프레임에 얼마나 움직일지
 }
 }
+
+{
+	캐릭터는 메쉬, 캡슐컴포넌트, 무브먼트컴포넌트를 들고있음
+	캡슐이 기본 루트컴포넌트임
+}
+
+{
+	CameraBoom->bUsePawnControlRotation = true; 컨트롤러로 돌릴때 카메라붐도 같이 돈다.
+}
+
+
+void AMain::MoveForward(float Value)
+{
+	if (Controller && 0 != Value)
+	{
+		// 정면기준으로 앞으로가야하고
+		const FRotator ControllerRotator = Controller->GetControlRotation();
+		const FRotator RotatorYaw = FRotator(0.f, ControllerRotator.Yaw, 0.f);
+		const FVector Direction = FRotationMatrix(RotatorYaw).GetUnitAxis(EAxis::X);
+
+		AddMovementInput(Direction, Value);
+	}
+}
