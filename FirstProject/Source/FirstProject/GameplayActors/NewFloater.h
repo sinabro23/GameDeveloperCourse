@@ -15,7 +15,7 @@ public:
 	// Sets default values for this actor's properties
 	ANewFloater();
 
-	UPROPERTY(VisibleAnywhere, Category = "ActorMeshComponent")
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "ActorMeshComponent")
 	UStaticMeshComponent* Mesh;
 
 	// BeingPlay에 처음 배치될 로케이션

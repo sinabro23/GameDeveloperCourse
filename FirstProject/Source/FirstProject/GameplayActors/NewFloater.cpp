@@ -27,7 +27,7 @@ void ANewFloater::BeginPlay()
 
 	if (bInitializeFloaterLocations)
 	{
-		SetActorLocation(InitialLocation);
+		//SetActorLocation(InitialLocation);
 	}
 }
 
@@ -39,8 +39,11 @@ void ANewFloater::Tick(float DeltaTime)
 	if (bShouldFloat)
 	{
 		FHitResult HitResult;
-		//deltalocation은 이 함수 호출될때 얼마나 움직일지
-		AddActorLocalOffset(InitialDirection, false, &HitResult);
+		// deltalocation은 이 함수 호출될때 얼마나 움직일지
+		// sweep이 true이면 스윕하는지 체크
+		AddActorLocalOffset(InitialDirection, true, &HitResult);
+		FVector HitLocation = HitResult.Location;
+		
 	}
 }
 
