@@ -8,13 +8,13 @@
 // Sets default values
 ACritter::ACritter():
 	CurrentVelocity(FVector(0.f)),
-	MaxSpeed(100.f)
+	MaxSpeed(200.f)
 {
  	// Set this pawn to call Tick() every frame.  You can turn this off to improve performance if you don't need it.
 	PrimaryActorTick.bCanEverTick = true;
 
 	RootComponent = CreateDefaultSubobject<USceneComponent>(TEXT("RootComopnent"));
-	Mesh = CreateDefaultSubobject<UStaticMeshComponent>(TEXT("MeshComponent"));
+	Mesh = CreateDefaultSubobject<USkeletalMeshComponent>(TEXT("MeshComponent"));
 	Mesh->SetupAttachment(GetRootComponent());
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
@@ -22,7 +22,7 @@ ACritter::ACritter():
 	Camera->SetRelativeLocation(FVector(-300.f, 0.f, 300.f));
 	Camera->SetRelativeRotation(FRotator(-45.f, 0.f, 0.f));
 
-	AutoPossessPlayer = EAutoReceiveInput::Player0;
+	//AutoPossessPlayer = EAutoReceiveInput::Player0;
 
 }
 
@@ -49,6 +49,9 @@ void ACritter::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &ACritter::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &ACritter::MoveRight);
+
+	PlayerInputComponent->BindAxis(TEXT("CameraPitch"), this, &ACritter::PitchCamera);
+	PlayerInputComponent->BindAxis(TEXT("CameraYaw"), this, &ACritter::YawCamera);
 }
 
 void ACritter::MoveForward(float Value)
@@ -59,5 +62,15 @@ void ACritter::MoveForward(float Value)
 void ACritter::MoveRight(float Value)
 {
 	CurrentVelocity.Y = FMath::Clamp(Value, -1.f, 1.f) * MaxSpeed;
+}
+
+void ACritter::PitchCamera(float Value)
+{
+
+}
+
+void ACritter::YawCamera(float Value)
+{
+
 }
 
