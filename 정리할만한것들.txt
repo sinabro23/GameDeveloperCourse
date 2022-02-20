@@ -1,0 +1,37 @@
+F는 Struct
+
+
+{
+	FMath::Clamp(Value, -1.f, 1.f)
+	// min 과 max 사이의 값으로 한정 지어줌 ex) 10으로 값이들어와도 1로 
+}
+
+{ [이동 함수] - 기존프로젝트에서 가져왔음
+	const FRotator Rotation{ Controller->GetControlRotation() }; // 컨트롤러의 로테이션 기준으로 앞으로가야함
+	const FRotator YawRotation{ 0, Rotation.Yaw, 0 }; //컨트롤러의 Yaw값만 중요하니깐
+	const FVector Direction{ FRotationMatrix{YawRotation}.GetUnitAxis(EAxis::X) }; // X가 언리얼기준 정면
+	AddMovementInput(Direction, Value);
+}
+
+{
+	SphereComponent->InitSphereRadius(40.f); // 반지름
+	Sphere->SetCollisionProfileName(TEXT("Pawn"));  // 콜리전 프리셋의 오브젝트타입이 Pawn으로 됨
+}
+
+{
+	static ConstructorHelpers::FObjectFinder<UStaticMesh> SM_Collider(TEXT("StaticMesh'/Game/StarterContent/Shapes/Shape_Sphere.Shape_Sphere'"));
+	if (SM_Collider.Succeeded())
+	{
+		Mesh->SetStaticMesh(SM_Collider.Object);
+		Mesh->SetRelativeLocation(FVector(0.f, 0.f, -40.f)); // 스피어컴포넌트와 바닥이 맞지않았음
+		Mesh->SetWorldScale3D(FVector(0.8f, 0.8f, 0.8f)); // 크기 3D벡터단위로 비율을 줄일때
+	}
+}
+
+{
+	void ACollider::MoveForward(float Value)
+	{
+		FVector Forward = GetActorForwardVector();
+		AddMovementInput(Forward * Value); // 인자로 들어가는 값은 한프레임에 얼마나 움직일지
+}
+}
