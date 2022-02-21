@@ -58,3 +58,35 @@ void AMain::MoveForward(float Value)
 		AddMovementInput(Direction, Value);
 	}
 }
+
+void AMain::TurnAtRate(float Rate) // 키보드버전 턴
+{
+	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+}
+
+{ // 마우스 돌리기
+	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis(TEXT("Lookup"), this, &AMain::AddControllerPitchInput);
+}
+	
+{
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AMain::Jump);
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &AMain::StopJumping);
+}
+
+{
+	GetCapsuleComponent()->SetCapsuleSize(43.f, 104.f);
+}
+
+{
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+}
+
+{
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.f, 0.f);  // 도는속도
+	GetCharacterMovement()->JumpZVelocity = 650.f;
+	GetCharacterMovement()->AirControl = 0.2f;
+}

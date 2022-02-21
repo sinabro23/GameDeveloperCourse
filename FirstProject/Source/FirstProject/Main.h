@@ -43,4 +43,10 @@ public:
 	void MoveRight(float Value);
 
 	// 카메라 도는 함수
+	void TurnAtRate(float Rate);
+	void LookupAtRate(float Rate);
+
+public:
+	FORCEINLINE USpringArmComponent* GetSpringArmComponent() { return CameraBoom; }
+	FORCEINLINE UCameraComponent* GetCamera() { return Camera; }
 };

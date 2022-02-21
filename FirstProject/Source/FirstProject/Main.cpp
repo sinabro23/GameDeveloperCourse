@@ -5,6 +5,7 @@
 #include "GameFramework/SpringArmComponent.h"
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
+#include "GameFramework/CharacterMovementComponent.h"
 
 // Sets default values
 AMain::AMain()
@@ -19,9 +20,8 @@ AMain::AMain()
 	{
 		GetMesh()->SetSkeletalMesh(SM_CastleGuard.Object);
 	}
-
-	GetCapsuleComponent()->SetCapsuleRadius(43.f);
-	GetCapsuleComponent()->SetCapsuleHalfHeight(104.f);
+	
+	GetCapsuleComponent()->SetCapsuleSize(48.f, 105.f);
 
 	CameraBoom = CreateDefaultSubobject<USpringArmComponent>(TEXT("CameraBoom"));
 	CameraBoom->SetupAttachment(GetRootComponent());
@@ -30,12 +30,22 @@ AMain::AMain()
 
 	Camera = CreateDefaultSubobject<UCameraComponent>(TEXT("Camera"));
 	Camera->SetupAttachment(CameraBoom, USpringArmComponent::SocketName);
-	Camera->bUsePawnControlRotation = false;
+	Camera->bUsePawnControlRotation = false; // 카메라붐이 로테이션하니깐 카메라는 돌면안됨.
 
-	// BaseTurnRate 65.f
 	BaseTurnRate = 65.f;
-	// BaseLookupRate 65.f
 	BaseLookupRate = 65.f;
+
+	// 컨트롤러 따라 메쉬 안돌게만들기
+	bUseControllerRotationPitch = false;
+	bUseControllerRotationYaw = false;
+	bUseControllerRotationRoll = false;
+
+	// 컨트롤러 방향에따라 캐릭터 돌게 만들기
+	GetCharacterMovement()->bOrientRotationToMovement = true;
+	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.f, 0.f);
+	GetCharacterMovement()->JumpZVelocity = 650.f;
+	GetCharacterMovement()->AirControl = 0.2f;
+
 }
 
 // Called when the game starts or when spawned
@@ -57,8 +67,18 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 {
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AMain::Jump);
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &AMain::StopJumping);
+	
+		
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMain::MoveForward);
 	PlayerInputComponent->BindAxis(TEXT("MoveRight"), this, &AMain::MoveRight);
+	PlayerInputComponent->BindAxis(TEXT("Turn"), this, &APawn::AddControllerYawInput);
+	PlayerInputComponent->BindAxis(TEXT("Lookup"), this, &APawn::AddControllerPitchInput);
+	PlayerInputComponent->BindAxis(TEXT("TurnRate"), this, &AMain::TurnAtRate);
+	PlayerInputComponent->BindAxis(TEXT("LookUpRate"), this, &AMain::LookupAtRate);
+	
+
 
 }
 
@@ -87,5 +107,15 @@ void AMain::MoveRight(float Value)
 
 		AddMovementInput(Direction, Value);
 	}
+}
+
+void AMain::TurnAtRate(float Rate)
+{
+	AddControllerYawInput(Rate * BaseTurnRate * GetWorld()->GetDeltaSeconds());
+}
+
+void AMain::LookupAtRate(float Rate)
+{
+	AddControllerPitchInput(Rate * BaseLookupRate* GetWorld()->GetDeltaSeconds());
 }
 
