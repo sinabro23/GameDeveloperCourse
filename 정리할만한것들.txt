@@ -130,3 +130,34 @@ void AMain::TurnAtRate(float Rate) // 키보드버전 턴
 	점프스타트 -> inAir // 점프스탑 -> Idle
 	조건 : Time remaining ratio < 비율( 점프스타트 애니메이션에서 직접보고 20%정도 지나면)
 }
+
+{
+	UBoxComponent / USphereComponent => 충돌체용으로
+}
+
+{
+	// 오버랩이 발생하면 바인딩한 함수 호출 // 생성자보다는 BeginPlay에 
+	TriggerBox->OnComponentBeginOverlap.AddDynamic(this, &AFloorSwitch::OnOverlapBegin)
+	TriggerBox->OnComponentEndOverlap.AddDynamic(this, &AFloorSwitch::OnOverlapEnd)
+
+	UFUNCTION()
+	void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, 
+						AActor* OtherActor,
+						UPrimitiveComponent* OtherComp,
+						int32 OtherBodyIndex,
+						bool bFromSweep,
+						const FHitResult & SweepResult);
+	UFUNCTION()
+	void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, 
+					  AActor* OtherActor,
+					  UPrimitiveComponent* OtherComp,
+					  int32 OtherBodyIndex);
+
+	TriggerBox->SetCollisionEnabled(EcolisionEnabled::QueryOnly); // 쿼리만 가능하게 
+	TriggerBox->SetCollisionObjectType(EcollisionChannel::ECC_WorldStatic);
+	TriggerBox->SetCollisionResponseToAllChannels(ECollisionResponse::ECR_Ignore); // 일단 모든채널 이그노어
+	TriggerBox->SetCollisionResponseToChannel(ECollisionChannel::ECC_Pawn, ECollsionResponse::ECR_Overlap); // Pawn에게는 반응하게
+	TriggerBox->SetBoxExtent(FVector());
+
+	이벤트체크 같은것은 캡슐끼리 콜리전체크함 메쉬가 아니라(메쉬 계산은 너무비쌈)
+}
