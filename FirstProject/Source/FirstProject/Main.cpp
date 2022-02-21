@@ -84,7 +84,6 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AMain::MoveForward(float Value)
 {
-	UE_LOG(LogTemp, Warning, TEXT("Value : %f"), Value);
 	if (Controller && 0 != Value)
 	{
 		// 정면기준으로 앞으로가야하고
