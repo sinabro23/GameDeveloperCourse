@@ -87,6 +87,46 @@ void AMain::TurnAtRate(float Rate) // 키보드버전 턴
 {
 	GetCharacterMovement()->bOrientRotationToMovement = true;
 	GetCharacterMovement()->RotationRate = FRotator(0.0f, 540.f, 0.f);  // 도는속도
-	GetCharacterMovement()->JumpZVelocity = 650.f;
-	GetCharacterMovement()->AirControl = 0.2f;
+	GetCharacterMovement()->JumpZVelocity = 650.f; // 점프 속도 
+	GetCharacterMovement()->AirControl = 0.2f; // 공중에서 움직일수 있는 정도
+}
+
+{
+	블렌드스페이스 : 애니메이션 어떤 기준에따라 천천히 섞는것 1D는 축이하나
+}
+
+{
+	애님인스턴스
+	float MovementSpeed, bool bIsInAir, Pawn* Pawn
+
+	virtual void NativeInitializeAnimation() override;
+	
+	UFUNCTION(BlueprintCallable, Category = AnimationProperties)
+	void UpdateAnimationProperties(); // 스스로 만든 함수 블루프린트에서 Event Bluprint Update Animation에 붙이려고
+
+	생성자에서 하면 안됨.
+
+	if(nullptr == Pawn)
+	{
+		Pawn = TryGetPawnOwner();
+	}
+
+	void UpdateAnimationProperties()
+	{
+		FVector Speed = Pawn->GetVelocity();
+		Speed.Z = 0.f;
+		MovementSpeed = Speed.Size();
+
+		bIsInAir = Pawn->GetMovementComponent()->IsFalling();
+	}
+}
+
+{
+	애님인스턴스 cpp로 만든것 바로 상속받아서 블루프린트 만들지 말고
+	애니메이션 블루프린트로 만들어서 애님인스턴스 상속클릭
+}
+
+{
+	점프스타트 -> inAir // 점프스탑 -> Idle
+	조건 : Time remaining ratio < 비율( 점프스타트 애니메이션에서 직접보고 20%정도 지나면)
 }
