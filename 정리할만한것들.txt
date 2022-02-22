@@ -214,3 +214,22 @@ void AMain::TurnAtRate(float Rate) // 키보드버전 턴
 	{
 	}
 }
+
+
+{
+	#include "Kismet/GameplayStatics.h"
+
+	GameplayStatics에 스폰같은 기능들 들어있음
+	if (OverlapParticles) <= UParticleSystem
+	{
+		UGameplayStatics::SpawnEmitterAtLocation(GetWorld(), OverlapParticles, GetActorLocation(), FRotator(0.f), true);
+	}
+	if (OverlapSound)
+	{
+		UGameplayStatics::PlaySound2D(this, OverlapSound);
+	}
+
+	Destroy();
+
+
+}
