@@ -184,3 +184,33 @@ void AMain::TurnAtRate(float Rate) // 키보드버전 턴
 		GetWorldTimerManager().SetTimer(SwitchHandle, this, &AFloorSwitch::CloseDoor, SwitchTime)
 	}
 }
+
+{
+	UFUNCTION(BlueprintPure, Category = "Spawning")
+	FVector GetSpawnPoint();
+
+	FVector GetSpawnPoint()
+	{
+		FVector Extent = SpawningBox->GetScaledBoxExtent(); // 스포닝박스 범위
+		FVector Origin = SpawningBox->GetComponentLocation();
+
+		FVector Point = UKismetMathLibarary::RandomPointInBoundingBox(Origin, Extent);
+	}
+}
+
+
+{
+	TSubclassOf : 블루프린트에서 목록으로 클래스의 하위항목만 나옴
+	ex) TSubclassOf<class ACritter> PawnToSpawn; // 이 경우는 Critter, Critter_BP만 나옴
+}
+
+{
+	UFUNCTION(BlueprintNativeEvent, BlueprintCallable, Category = "Spawning")
+	void SpawnOurPawn(UClass* ToSpawn, const FVector& Location);
+
+	BlueprintNativeEvent : c++에 구현부가 존재하지만 필요시 블루프린트에서 오버라이드 할 수 있게 해주는 지정자
+
+	void SpawnOurPawn_Implementation(UClass* ToSpawn, const FVector& Location)
+	{
+	}
+}
