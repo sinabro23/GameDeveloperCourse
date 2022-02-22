@@ -233,3 +233,16 @@ void AMain::TurnAtRate(float Rate) // 키보드버전 턴
 
 
 }
+
+
+{
+	HUD 정보를 PlayerController에 넣어 두는건 데스매치 같은데서 죽고나서도 캐릭터는 파괴됐지만
+	정보는 계속 볼 수 있게 하기 위해서.
+	HUD 만드려면 "UMG" 추가
+
+	슬레이트 사용하려면 "Slate", "SlateCore" 추가
+
+	처음에 캔버스패널 지우고 시작
+
+	ProgressBar 체력바처럼 퍼센트로 차는 바 
+}
