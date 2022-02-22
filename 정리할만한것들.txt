@@ -161,3 +161,26 @@ void AMain::TurnAtRate(float Rate) // 키보드버전 턴
 
 	이벤트체크 같은것은 캡슐끼리 콜리전체크함 메쉬가 아니라(메쉬 계산은 너무비쌈)
 }
+
+{
+	UFUNCTION(BlueprintImplementableEvent, Category = "Floor Switch") 
+	void RaiseDoor(); 
+	UFUNCTION(BlueprintImplementableEvent, Category = "Floor Switch") 
+	void LowerDoor(); 
+	// BlueprintImplementableEvent CPP에서 구현 안해도 블루프린트에서 구현 가능
+}
+
+
+{
+	이벤트그래프에서 타임라인 사용하면 천천히 밸류 올릴수 있음 43강
+}
+
+{
+	FTimerHandle SwitchHandle;
+	float SwitchCloseTime = 2.f;
+
+	onoverlapEnd()
+	{
+		GetWorldTimerManager().SetTimer(SwitchHandle, this, &AFloorSwitch::CloseDoor, SwitchTime)
+	}
+}
