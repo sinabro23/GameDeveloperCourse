@@ -347,3 +347,32 @@ void AWeapon::Equip(AMain* Character)
 	애님몽타주에서 EndAttack이라는 노티파이 추가했음.
 	추가한 노티파이는 애니메이션 블루프린트의 이벤트 그래프에서 사용가능
 }
+
+{
+	Enemy는 캐릭터로 만드는게 좋다
+}
+
+{
+	NavMeshBoundsVolumn 몬스터 이동 가능한곳 찾아주는것
+}
+
+{
+	AI사용하려면 C#파일에 "AIModule" 추가해야함
+}
+
+{
+	AIController = Cast<AAIController>(GetController()); // BeginPlay에서
+
+	if (AIController)
+	{
+		// AAIController::MoveTo() 인자. 공식문서 참조
+		FAIMoveRequest MoveRequest;
+		MoveRequest.SetGoalActor(Target);
+		MoveRequest.SetAcceptanceRadius(5.f); // 이동을 완료하는데 필요한 목표까지의 거리 // 5cm남기면 완료
+		//나머지 인자들은 디폴트값으로
+
+		FNavPathSharedPtr NavPath; 
+
+		AIController->MoveTo(MoveRequest, &NavPath); // NavPath넣어주면 값 반환해줌
+	}
+}
