@@ -245,4 +245,10 @@ void AMain::TurnAtRate(float Rate) // 키보드버전 턴
 	처음에 캔버스패널 지우고 시작
 
 	ProgressBar 체력바처럼 퍼센트로 차는 바 
+
+	HUD사용하려고 MainPlayerController 클래스 만들었음
+}
+
+{
+	HealthBar hud에서 바인드한거 한번 보기
 }
