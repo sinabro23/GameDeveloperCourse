@@ -341,3 +341,9 @@ void AWeapon::Equip(AMain* Character)
 			IdleParitcles->Deactivate(); // 파티클 작동안하게
 		}
 }
+
+{
+	애님몽타주에서 섹션만들때 Default있는거를 지우고 새로 attack_1부터 만듦
+	애님몽타주에서 EndAttack이라는 노티파이 추가했음.
+	추가한 노티파이는 애니메이션 블루프린트의 이벤트 그래프에서 사용가능
+}

@@ -67,6 +67,8 @@ AMain::AMain()
 
 	StaminaDrainRate = 25.f; // 초당 떨어지는 스태미나
 	MinSprintStamina = 50.f;
+
+	bAttacking = false;
 }
 
 
@@ -211,7 +213,7 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AMain::MoveForward(float Value)
 {
-	if (Controller && 0 != Value)
+	if (Controller && 0 != Value && !bAttacking)
 	{
 		// 정면기준으로 앞으로가야하고
 		const FRotator ControllerRotator = Controller->GetControlRotation();
@@ -224,7 +226,7 @@ void AMain::MoveForward(float Value)
 
 void AMain::MoveRight(float Value)
 {
-	if (Controller && 0 != Value)
+	if (Controller && 0 != Value && !bAttacking)
 	{
 		// 정면기준으로 오른쪽으로 가야하니깐
 		const FRotator ControllerRotator = Controller->GetControlRotation();
@@ -306,6 +308,10 @@ void AMain::LMBDown()
 			SetActiveOverlappingItem(nullptr); // 무기를 집고나서도 ActiveOverlappingItem가 null이 안됐었음
 		}
 	}
+	else if(EquippedWeapon) // 무기를 장착하고 바다에 떨어진 무기범위 안이 아니라면
+	{
+		Attack();
+	}
 }
 
 void AMain::LMBUp()
@@ -321,4 +327,44 @@ void AMain::SetEquippedWeapon(AWeapon* WeaponToSet)
 	}
 
 	EquippedWeapon = WeaponToSet;
+}
+
+void AMain::Attack()
+{
+	if (!bAttacking) // 이미 공격하고있어도 왼클릭누르면 처음부터 다시공격하는거 방지
+	{
+		bAttacking = true;
+
+		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+		if (AnimInstance && CombatMontage)
+		{
+			int32 Section = FMath::RandRange(0, 1); // 랜덤으로 몽타주 섹션 1과 2를 번갈아가면서 쓰게하기 위한 변수
+			switch (Section)
+			{
+			case 0:
+				// 두번째 인자 몽타주 플레이 속도 ex) 1.35f는 35%빠르게
+				AnimInstance->Montage_Play(CombatMontage, 2.2f);
+				AnimInstance->Montage_JumpToSection(FName("Attack_1"), CombatMontage); // Default지우고 만든 섹션
+				break;
+			case 1:
+				// 두번째 인자 몽타주 플레이 속도 1.35f는 35%빠르게
+				AnimInstance->Montage_Play(CombatMontage, 1.8f);
+				AnimInstance->Montage_JumpToSection(FName("Attack_2"), CombatMontage); // Default지우고 만든 섹션
+				break;
+			default:
+				break;
+			}
+			
+		}
+	}
+	
+}
+
+void AMain::AttackEnd()
+{
+	bAttacking = false;
+	if (bLMBDown) // 왼버튼 누르고 있으면 계속 공격하게
+	{
+		Attack();
+	}
 }
