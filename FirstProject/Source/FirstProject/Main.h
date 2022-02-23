@@ -6,6 +6,26 @@
 #include "GameFramework/Character.h"
 #include "Main.generated.h"
 
+// 캐릭터 달리는 상태
+UENUM(BlueprintType)
+enum class EMovementStatus : uint8
+{
+	EMS_Normal UMETA(DisplayName = "Normal"),
+	EMS_Sprinting UMETA(DisplayName = "Springting"),
+	EMS_MAX UMETA(DisplayName = "DefaultMax"),
+};
+
+UENUM(BlueprintType)
+enum class EStaminaStatus : uint8
+{
+	ESS_Normal UMETA(DisplayName = "Normal"),
+	ESS_BelowMinimum UMETA(DisplayName = "BelowMinimum"),
+	ESS_Exhausted UMETA(DisplayName = "Exhuasted"),
+	ESS_ExhaustedRecovering UMETA(DisplayName = "ExhaustedRecovering"),
+
+	ESS_MAX UMETA(DisplayName = "DefaultMAX"),
+};
+
 UCLASS()
 class FIRSTPROJECT_API AMain : public ACharacter
 {
@@ -14,6 +34,17 @@ class FIRSTPROJECT_API AMain : public ACharacter
 public:
 	// Sets default values for this character's properties
 	AMain();
+
+	TArray<FVector> PickupLocations;
+
+	UFUNCTION(BlueprintCallable)
+	void ShowPickupLocations();
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Enums")
+	EMovementStatus MovementStatus;
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Enums")
+	EStaminaStatus StaminaStatus;
 
 	// 카메라붐
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = Camera, meta = (AllowPrivateAccess = "true"))
@@ -48,6 +79,13 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Player Stats")
 	int32 Coins;
 
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Running")
+	float RunningSpeed;
+
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = "Running")
+	float SpringtingSpeed;
+
+	bool bShiftKeyDown;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -67,7 +105,28 @@ public:
 	void TurnAtRate(float Rate);
 	void LookupAtRate(float Rate);
 
+	void DecrementHealth(float Amount);
+	void Die();
+
+	void IncrementCoins(int32 Amount);
+
+	// 무브먼트 상태와 달리기 속도 정한다.
+	void SetMovementStatus(EMovementStatus Status);
+
+	FORCEINLINE void SetStaminaStatus(EStaminaStatus Status) { StaminaStatus = Status; }
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float StaminaDrainRate; // 뛸때 스태미나 줄어드는 양
+	
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
+	float MinSprintStamina; // 스태미나 색 바뀌는 한계치 
+
+	void ShiftKeyDown();
+
+	void ShiftKeyUp();
 public:
 	FORCEINLINE USpringArmComponent* GetSpringArmComponent() { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetCamera() { return Camera; }
+
+
 };

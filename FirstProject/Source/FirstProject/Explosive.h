@@ -17,6 +17,12 @@ class FIRSTPROJECT_API AExplosive : public AItem
 public:
 	AExplosive();
 
+public:
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Damage")
+	float Damage;
+
+public:
+
 	//UFUNCTION() // 내가만든 클래스에서 UFUNCTION한걸 상속받았아면 또 할 수 없음
 	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 	//UFUNCTION()

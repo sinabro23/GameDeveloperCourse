@@ -33,4 +33,7 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
 	APawn* Pawn;
 
+	// 쉬프트키 스프린트 변경하는거 할때 추가했음.
+	UPROPERTY(EditAnywhere, BlueprintReadOnly, Category = Movement)
+	class AMain* Main;
 };

@@ -6,6 +6,8 @@
 #include "Camera/CameraComponent.h"
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
+#include "Kismet/KismetSystemLibrary.h"
+
 
 // Sets default values
 AMain::AMain()
@@ -48,16 +50,44 @@ AMain::AMain()
 
 	MaxHealth = 100.f;
 	Health = 65.f;
-	MaxStamina = 350.f;
+	MaxStamina = 150.f;
 	Stamina = 120.f;
 	Coins = 0;
+
+	RunningSpeed = 650.f;
+	SpringtingSpeed = 950.f;
+
+	bShiftKeyDown = false;
+
+
+	// Initialize Enums
+	MovementStatus = EMovementStatus::EMS_Normal;
+	StaminaStatus = EStaminaStatus::ESS_Normal;
+
+	StaminaDrainRate = 25.f; // 초당 떨어지는 스태미나
+	MinSprintStamina = 50.f;
+}
+
+
+void AMain::ShowPickupLocations()
+{
+	for (FVector Location : PickupLocations)
+	{
+		UKismetSystemLibrary::DrawDebugSphere(
+			this,
+			Location,
+			25.f,
+			8,
+			FLinearColor::Green,
+			10.f,
+			.5f);
+	}
 }
 
 // Called when the game starts or when spawned
 void AMain::BeginPlay()
 {
 	Super::BeginPlay();
-	
 }
 
 // Called every frame
@@ -65,6 +95,93 @@ void AMain::Tick(float DeltaTime)
 {
 	Super::Tick(DeltaTime);
 
+	float DeltaStamina = StaminaDrainRate * DeltaTime; // 줄어드는지 늘어나는지 상관없이 일정값
+	
+	switch (StaminaStatus)
+	{
+	case EStaminaStatus::ESS_Normal:
+		if (bShiftKeyDown)
+		{
+			if (Stamina - DeltaStamina <= MinSprintStamina)
+			{
+				SetStaminaStatus(EStaminaStatus::ESS_BelowMinimum);
+				Stamina -= DeltaStamina;
+			}
+			else
+			{
+				Stamina -= DeltaStamina;
+			}
+			SetMovementStatus(EMovementStatus::EMS_Sprinting); // 스피드 바꾸는것
+		}
+		else // 쉬프트키 떼면
+		{
+			if (Stamina + DeltaStamina >= MaxStamina)
+			{
+				Stamina = MaxStamina;
+			}
+			else
+			{
+				Stamina += DeltaStamina;
+			}
+			SetMovementStatus(EMovementStatus::EMS_Normal);
+		}
+		break;
+	case EStaminaStatus::ESS_BelowMinimum:
+		if (bShiftKeyDown)
+		{
+			if (Stamina - DeltaStamina <= 0.f)
+			{
+				SetStaminaStatus(EStaminaStatus::ESS_Exhausted);
+				Stamina = 0.f;
+				SetMovementStatus(EMovementStatus::EMS_Normal);
+			}
+			else
+			{
+				Stamina -= DeltaStamina;
+				SetMovementStatus(EMovementStatus::EMS_Sprinting);
+			}
+		}
+		else // 쉬프트키 떼면
+		{
+			if (Stamina += DeltaStamina >= MinSprintStamina)
+			{
+				Stamina += DeltaStamina;
+				SetStaminaStatus(EStaminaStatus::ESS_Normal);
+			}
+			else
+			{
+				Stamina += DeltaStamina;
+			}
+			SetMovementStatus(EMovementStatus::EMS_Normal);
+		}
+		break;
+	case EStaminaStatus::ESS_Exhausted:
+		if (bShiftKeyDown)
+		{
+			Stamina = 0.f;
+		}
+		else // 쉬프트키 떼면
+		{
+			SetStaminaStatus(EStaminaStatus::ESS_ExhaustedRecovering);
+			Stamina += DeltaStamina;
+		}
+		SetMovementStatus(EMovementStatus::EMS_Normal);
+		break;
+	case EStaminaStatus::ESS_ExhaustedRecovering:
+		if (Stamina += DeltaStamina >= MinSprintStamina)
+		{
+			SetStaminaStatus(EStaminaStatus::ESS_Normal);
+			Stamina += DeltaStamina;
+		}
+		else
+		{
+			Stamina += DeltaStamina;
+		}
+		SetMovementStatus(EMovementStatus::EMS_Normal);
+		break;
+	default:
+		break;
+	}
 }
 
 // Called to bind functionality to input
@@ -74,6 +191,8 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AMain::Jump);
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &AMain::StopJumping);
+	PlayerInputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Pressed, this, &AMain::ShiftKeyDown);
+	PlayerInputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Released, this, &AMain::ShiftKeyUp);
 	
 		
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMain::MoveForward);
@@ -123,3 +242,51 @@ void AMain::LookupAtRate(float Rate)
 	AddControllerPitchInput(Rate * BaseLookupRate* GetWorld()->GetDeltaSeconds());
 }
 
+
+void AMain::DecrementHealth(float Amount)
+{
+
+	if (Health - Amount <= 0.f)
+	{
+		Health -= Amount;
+		Die();
+	}
+	else
+	{
+		Health -= Amount;
+	}
+
+}
+
+void AMain::Die()
+{
+}
+
+void AMain::IncrementCoins(int32 Amount)
+{
+	Coins += Amount;
+}
+
+void AMain::SetMovementStatus(EMovementStatus Status)
+{
+	MovementStatus = Status;
+
+	if (MovementStatus == EMovementStatus::EMS_Sprinting)
+	{
+		GetCharacterMovement()->MaxWalkSpeed = SpringtingSpeed;
+	}
+	else 
+	{
+		GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
+	}
+}
+
+void AMain::ShiftKeyDown()
+{
+	bShiftKeyDown = true;
+}
+
+void AMain::ShiftKeyUp()
+{
+	bShiftKeyDown = false;
+}

@@ -252,3 +252,44 @@ void AMain::TurnAtRate(float Rate) // 키보드버전 턴
 {
 	HealthBar hud에서 바인드한거 한번 보기
 }
+
+
+{
+UENUM(BlueprintType)
+enum class EMovementStatus : uint8
+{
+	EMS_Normal UMETA(DisplayName = "Normal"),
+	EMS_Sprinting UMETA(DisplayName = "Springting"),
+	EMS_MAX UMETA(DisplayName = "DefaultMax"),
+};
+
+}
+
+
+{
+	void AMain::SetMovementStatus(EMovementStatus Status)
+	{
+		MovementStatus = Status;
+
+		if (MovementStatus == EMovementStatus::EMS_Sprinting)
+		{
+			GetCharacterMovement()->MaxWalkSpeed = SpringtingSpeed;
+		}
+		else 
+		{
+			GetCharacterMovement()->MaxWalkSpeed = RunningSpeed;
+		}
+	}
+}
+
+
+{
+	UKismetSystemLibrary::DrawDebugSphere
+}
+
+
+{
+	Tarray<FVector> PickupLocations;
+
+	MainCharacter->PickupLocations.Add(GetActorLocation());
+}
