@@ -7,7 +7,7 @@
 #include "Components/CapsuleComponent.h"
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
-
+#include "Weapon.h"
 
 // Sets default values
 AMain::AMain()
@@ -58,6 +58,7 @@ AMain::AMain()
 	SpringtingSpeed = 950.f;
 
 	bShiftKeyDown = false;
+	bLMBDown = false;
 
 
 	// Initialize Enums
@@ -193,6 +194,8 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &AMain::StopJumping);
 	PlayerInputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Pressed, this, &AMain::ShiftKeyDown);
 	PlayerInputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Released, this, &AMain::ShiftKeyUp);
+	PlayerInputComponent->BindAction(TEXT("LMB"), EInputEvent::IE_Pressed, this, &AMain::LMBDown);
+	PlayerInputComponent->BindAction(TEXT("LMB"), EInputEvent::IE_Released, this, &AMain::LMBUp);
 	
 		
 	PlayerInputComponent->BindAxis(TEXT("MoveForward"), this, &AMain::MoveForward);
@@ -289,4 +292,33 @@ void AMain::ShiftKeyDown()
 void AMain::ShiftKeyUp()
 {
 	bShiftKeyDown = false;
+}
+
+void AMain::LMBDown()
+{
+	bLMBDown = true;
+	if (ActiveOverlappingItem)
+	{
+		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
+		if (Weapon)
+		{
+			Weapon->Equip(this);
+			SetActiveOverlappingItem(nullptr); // 무기를 집고나서도 ActiveOverlappingItem가 null이 안됐었음
+		}
+	}
+}
+
+void AMain::LMBUp()
+{
+	bLMBDown = false;
+}
+
+void AMain::SetEquippedWeapon(AWeapon* WeaponToSet)
+{
+	if (EquippedWeapon) // 기존에 장착한 무기가 있다면 파괴하라
+	{
+		EquippedWeapon->Destroy();
+	}
+
+	EquippedWeapon = WeaponToSet;
 }

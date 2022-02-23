@@ -37,6 +37,8 @@ public:
 
 	TArray<FVector> PickupLocations;
 
+
+
 	UFUNCTION(BlueprintCallable)
 	void ShowPickupLocations();
 
@@ -124,9 +126,23 @@ public:
 	void ShiftKeyDown();
 
 	void ShiftKeyUp();
+
+	// 처음에 무기 얻는 키로 쓰려고 만들었음
+	bool bLMBDown;
+	void LMBDown();
+	void LMBUp();
 public:
 	FORCEINLINE USpringArmComponent* GetSpringArmComponent() { return CameraBoom; }
 	FORCEINLINE UCameraComponent* GetCamera() { return Camera; }
 
+	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Items")
+	class AWeapon* EquippedWeapon;
 
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Items")
+	class AItem* ActiveOverlappingItem; // 현재 아이템의 콜리전 위에 서있어서 선택가능한 아이템
+
+	void SetEquippedWeapon(AWeapon* WeaponToSet);
+	FORCEINLINE AWeapon* GetEquippedWeapon() { return EquippedWeapon; }
+
+	FORCEINLINE void SetActiveOverlappingItem(AItem* Item) { ActiveOverlappingItem = Item; }
 };

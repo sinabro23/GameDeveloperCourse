@@ -23,6 +23,7 @@ void AExplosive::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor
 		if (MainCharacter) // 캐스팅 결과 유효하지 않으면 nullptr임
 		{
 			MainCharacter->DecrementHealth(Damage);
+			Destroy();
 		}
 	}
 }

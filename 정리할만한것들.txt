@@ -293,3 +293,51 @@ enum class EMovementStatus : uint8
 
 	MainCharacter->PickupLocations.Add(GetActorLocation());
 }
+
+{
+void AWeapon::OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult)
+{
+	Super::OnOverlapBegin(OverlappedComponent, OtherActor, OtherComp, OtherBodyIndex, bFromSweep, SweepResult);
+
+	if (OtherActor)
+	{
+		AMain* Main = Cast<AMain>(OtherActor);
+		if (Main)
+		{
+			Equip(Main);
+		}
+	}
+}
+
+
+void AWeapon::Equip(AMain* Character)
+{
+	if (Character) <= 메인캐릭터
+	{
+		// 카메라가 무기에 걸려서 줌인같은거 안되게 하기위해
+		SkeletalMesh->SetCollisionResponseToChannel(
+			ECollisionChannel::ECC_Camera,
+			ECollisionResponse::ECR_Ignore);
+
+		// 폰도 마찬가지로 걸리지 않게 하기 위해 
+		SkeletalMesh->SetCollisionResponseToChannel(
+			ECollisionChannel::ECC_Pawn,
+			ECollisionResponse::ECR_Ignore);
+
+		SkeletalMesh->SetSimulatePhysics(false);
+
+		const USkeletalMeshSocket* RightHandSocket = Character->GetMesh()->GetSocketByName("RightHandSocket");
+		if (RightHandSocket)
+		{
+			RightHandSocket->AttachActor(this, Character->GetMesh());
+		}
+	}
+}
+}
+
+{
+	if (!bWeaponParticle)
+		{
+			IdleParitcles->Deactivate(); // 파티클 작동안하게
+		}
+}
