@@ -112,6 +112,9 @@ void AMain::Tick(float DeltaTime)
 
 	float DeltaStamina = StaminaDrainRate * DeltaTime; // 줄어드는지 늘어나는지 상관없이 일정값
 
+	if (MovementStatus == EMovementStatus::EMS_Dead)
+		return;
+
 	switch (StaminaStatus)
 	{
 	case EStaminaStatus::ESS_Normal:
@@ -230,7 +233,8 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 	Super::SetupPlayerInputComponent(PlayerInputComponent);
 
 	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Pressed, this, &AMain::Jump);
-	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &AMain::StopJumping);
+	PlayerInputComponent->BindAction(TEXT("Jump"), EInputEvent::IE_Released, this, &ACharacter::StopJumping);
+
 	PlayerInputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Pressed, this, &AMain::ShiftKeyDown);
 	PlayerInputComponent->BindAction(TEXT("Sprint"), EInputEvent::IE_Released, this, &AMain::ShiftKeyUp);
 	PlayerInputComponent->BindAction(TEXT("LMB"), EInputEvent::IE_Pressed, this, &AMain::LMBDown);
@@ -250,7 +254,7 @@ void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
 
 void AMain::MoveForward(float Value)
 {
-	if (Controller && 0 != Value && !bAttacking)
+	if (Controller && 0 != Value && !bAttacking && (MovementStatus != EMovementStatus::EMS_Dead))
 	{
 		// 정면기준으로 앞으로가야하고
 		const FRotator ControllerRotator = Controller->GetControlRotation();
@@ -263,7 +267,7 @@ void AMain::MoveForward(float Value)
 
 void AMain::MoveRight(float Value)
 {
-	if (Controller && 0 != Value && !bAttacking)
+	if (Controller && 0 != Value && !bAttacking && (MovementStatus != EMovementStatus::EMS_Dead))
 	{
 		// 정면기준으로 오른쪽으로 가야하니깐
 		const FRotator ControllerRotator = Controller->GetControlRotation();
@@ -288,34 +292,46 @@ void AMain::LookupAtRate(float Rate)
 void AMain::DecrementHealth(float Amount)
 {
 
-	if (Health - Amount <= 0.f)
-	{
-		Health -= Amount;
-		Die();
-	}
-	else
-	{
-		Health -= Amount;
-	}
 
 }
 
 
 float AMain::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
 {
-	DecrementHealth(DamageAmount);
+	if (Health - DamageAmount <= 0.f)
+	{
+		Health -= DamageAmount;
+		Die();
+		if (DamageCauser)
+		{
+			AEnemy* Enemy = Cast<AEnemy>(DamageCauser);
+			if (Enemy)
+			{
+				Enemy->bHasValidTarget = false;
+			}
+		}
+	}
+	else
+	{
+		Health -= DamageAmount;
+	}
 
 	return DamageAmount;
 }
 
 void AMain::Die()
 {
+	if (MovementStatus == EMovementStatus::EMS_Dead)
+		return;
+
 	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 	if (AnimInstance && CombatMontage)
 	{
 		AnimInstance->Montage_Play(CombatMontage, 1.f);
 		AnimInstance->Montage_JumpToSection(FName("Death"), CombatMontage);
 	}
+
+	SetMovementStatus(EMovementStatus::EMS_Dead);
 }
 
 void AMain::IncrementCoins(int32 Amount)
@@ -350,6 +366,10 @@ void AMain::ShiftKeyUp()
 void AMain::LMBDown()
 {
 	bLMBDown = true;
+
+	if (MovementStatus == EMovementStatus::EMS_Dead)
+		return;
+
 	if (ActiveOverlappingItem)
 	{
 		AWeapon* Weapon = Cast<AWeapon>(ActiveOverlappingItem);
@@ -383,7 +403,7 @@ void AMain::SetEquippedWeapon(AWeapon* WeaponToSet)
 
 void AMain::Attack()
 {
-	if (!bAttacking) // 이미 공격하고있어도 왼클릭누르면 처음부터 다시공격하는거 방지
+	if (!bAttacking && MovementStatus != EMovementStatus::EMS_Dead) // 이미 공격하고있어도 왼클릭누르면 처음부터 다시공격하는거 방지
 	{
 		bAttacking = true;
 		SetInterpToEnemy(true);
@@ -434,4 +454,18 @@ void AMain::PlaySwingSound() // 애님노티파이로 애님BP에서 호출될 함수
 void AMain::SetInterpToEnemy(bool Interp)
 {
 	bInterToEnemy = Interp;
+}
+
+void AMain::DeathEnd()
+{
+	GetMesh()->bPauseAnims = true;
+	GetMesh()->bNoSkeletonUpdate = true;
+}
+
+void AMain::Jump()
+{
+	if (MovementStatus != EMovementStatus::EMS_Dead)
+	{
+		Super::Jump();
+	}
 }

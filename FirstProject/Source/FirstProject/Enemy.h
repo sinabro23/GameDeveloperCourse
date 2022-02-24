@@ -26,6 +26,8 @@ public:
 	// Sets default values for this character's properties
 	AEnemy();
 
+	bool bHasValidTarget;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Movement")
 	EEnemyMovementStatus EnemyMovementStatus;
 

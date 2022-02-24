@@ -12,6 +12,8 @@ enum class EMovementStatus : uint8
 {
 	EMS_Normal UMETA(DisplayName = "Normal"),
 	EMS_Sprinting UMETA(DisplayName = "Springting"),
+	EMS_Dead UMETA(DisplayName = "Dead"),
+
 	EMS_MAX UMETA(DisplayName = "DefaultMax"),
 };
 
@@ -194,4 +196,9 @@ public:
 
 	UFUNCTION(BlueprintCallable)
 	void PlaySwingSound();
+
+	UFUNCTION(BlueprintCallable)
+	void DeathEnd();
+
+	virtual void Jump() override;
 };
