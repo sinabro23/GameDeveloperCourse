@@ -26,6 +26,8 @@ class FIRSTPROJECT_API AWeapon : public AItem
 
 public:
 	AWeapon();
+	
+
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Item")
 	EWeaponState WeaponState;
@@ -36,14 +38,43 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Sound")
 	class USoundCue* OnEquipSound;
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Sound")
+	USoundCue* SwingSound;
+
 	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Mesh")
 	USkeletalMeshComponent* SkeletalMesh; //AItem에는 staticmesh있음
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Item | Combat")
+	class UBoxComponent* CombatCollision; //무기 딜 넣을수 있는 박스콜리전
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Combat")
+	float Damage;
+
+
+
+protected:
+
+	virtual void BeginPlay() override;
+
+public:
 
 	virtual void OnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult) override;
 	virtual void OnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex) override;
 	
 	void Equip(class AMain* Character);
 
+	UFUNCTION(BlueprintCallable)
+	void ActivateCollsion();
+
+	UFUNCTION(BlueprintCallable)
+	void DeactivateCollsion();
+
 	FORCEINLINE EWeaponState GetWeaponState() { return WeaponState; }
 	FORCEINLINE void SetWeaponState(EWeaponState State) { WeaponState = State; }
+
+	// 무기 대미지를위한 오버랩 함수
+	UFUNCTION()
+	void CombatOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex, bool bFromSweep, const FHitResult& SweepResult);
+	UFUNCTION()
+	void CombatOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, AActor* OtherActor, UPrimitiveComponent* OtherComp, int32 OtherBodyIndex);
 };

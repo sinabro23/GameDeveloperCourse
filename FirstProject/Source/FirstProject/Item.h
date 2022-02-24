@@ -27,7 +27,7 @@ public:
 	// component는 부품으로 장착
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Paritcles")
-	UParticleSystem* OverlapParticles; // 콜리전 반응 파티클
+	UParticleSystem* OverlapParticles; // 콜리전 반응 파티클 // ex) 돈획득
 	// system은 파티클 그자체
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Item | Sound")
 	class USoundCue* OverlapSound;

@@ -35,9 +35,13 @@ public:
 	// Sets default values for this character's properties
 	AMain();
 
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	UParticleSystem* HitParticles; //피같은거
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
+	class USoundCue* HitSound; // 피격소리
+
 	TArray<FVector> PickupLocations;
-
-
 
 	UFUNCTION(BlueprintCallable)
 	void ShowPickupLocations();
@@ -157,4 +161,7 @@ public:
 	// Main_BP에서 설정해줘야함
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
 	class UAnimMontage* CombatMontage;
+
+	UFUNCTION(BlueprintCallable)
+	void PlaySwingSound();
 };

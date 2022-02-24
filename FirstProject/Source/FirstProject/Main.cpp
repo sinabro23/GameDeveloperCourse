@@ -8,6 +8,9 @@
 #include "GameFramework/CharacterMovementComponent.h"
 #include "Kismet/KismetSystemLibrary.h"
 #include "Weapon.h"
+#include "Kismet/GameplayStatics.h"
+#include "Sound/SoundCue.h"
+
 
 // Sets default values
 AMain::AMain()
@@ -356,8 +359,8 @@ void AMain::Attack()
 			}
 			
 		}
+
 	}
-	
 }
 
 void AMain::AttackEnd()
@@ -366,5 +369,13 @@ void AMain::AttackEnd()
 	if (bLMBDown) // 왼버튼 누르고 있으면 계속 공격하게
 	{
 		Attack();
+	}
+}
+
+void AMain::PlaySwingSound() // 애님노티파이로 애님BP에서 호출될 함수
+{
+	if (EquippedWeapon->SwingSound)
+	{
+		UGameplayStatics::PlaySound2D(this, EquippedWeapon->SwingSound);
 	}
 }

@@ -376,3 +376,18 @@ void AWeapon::Equip(AMain* Character)
 		AIController->MoveTo(MoveRequest, &NavPath); // NavPath넣어주면 값 반환해줌
 	}
 }
+
+{
+	웨폰 피나는 파티클위해서 무기메쉬에 소켓 뚫었음
+
+	충돌판정은 캐릭터의 캡슐컴포넌트로
+}
+
+{
+	애님몽타주 섹션끼리 붙어있으면 링크 떼어줘야 각자 실행됨
+}
+
+{
+	컴포넌트를 소켓 그자체에다 붙였음.
+	CombatCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("EnemySocket"));
+}
