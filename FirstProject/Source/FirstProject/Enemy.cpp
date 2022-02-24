@@ -11,6 +11,8 @@
 #include "Components/BoxComponent.h"
 #include "Engine/SkeletalMeshSocket.h"
 #include "Kismet/GameplayStatics.h"
+#include "TimerManager.h"
+
 // Sets default values
 AEnemy::AEnemy()
 {
@@ -35,6 +37,9 @@ AEnemy::AEnemy()
 	Damage = 10.f;
 
 	bAttacking = false;
+
+	AttackMinTime = 0.5f;
+	AttackMaxTime = 3.5f;
 }
 
 // Called when the game starts or when spawned
@@ -110,6 +115,7 @@ void AEnemy::CombatSphereOnOverlapBegin(UPrimitiveComponent* OverlappedComponent
 		AMain* Main = Cast<AMain>(OtherActor);
 		if (Main)
 		{
+			Main->SetCombatTarget(this);
 			CombatTarget = Main;
 			bOverlappingCombatSphere = true;
 			Attack();
@@ -124,13 +130,14 @@ void AEnemy::CombatSphereOnOverlapEnd(UPrimitiveComponent* OverlappedComponent, 
 		AMain* Main = Cast<AMain>(OtherActor);
 		if (Main)
 		{
+			Main->SetCombatTarget(nullptr);
 			bOverlappingCombatSphere = false;	
 			if (EnemyMovementStatus != EEnemyMovementStatus::EMS_Attacking)
 			{
 				MoveToTarget(Main);
 				CombatTarget = nullptr;
 			}
-			//MoveToTarget(Main); -> 지우고 Blueprint에서 공격 애니메이션 끝나면 호출되게
+			GetWorldTimerManager().ClearTimer(AttackTimer);
 		}
 	}
 }
@@ -248,6 +255,7 @@ void AEnemy::AttackEnd()
 	bAttacking = false;
 	if (bOverlappingCombatSphere)
 	{
-		Attack();
+		float AttackTime = FMath::FRandRange(AttackMinTime, AttackMaxTime);
+		GetWorldTimerManager().SetTimer(AttackTimer, this, &AEnemy::Attack, AttackTime);
 	}
 }

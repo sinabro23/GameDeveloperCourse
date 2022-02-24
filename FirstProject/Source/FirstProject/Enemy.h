@@ -66,6 +66,12 @@ public:
 	UPROPERTY(EditDefaultsOnly, BlueprintReadOnly, Category = "Anims")
 	class UAnimMontage* CombatMontage;
 
+	FTimerHandle AttackTimer; // 몬스터 공격 주기 랜덤으로 설정하기위해
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float AttackMinTime;
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float AttackMaxTime;
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;

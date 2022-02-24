@@ -127,6 +127,17 @@ public:
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Movement")
 	float MinSprintStamina; // 스태미나 색 바뀌는 한계치 
 
+	float InterpSpeed; // 몬스터 공격할때 몬스터 방향으로 돌게 하기위함
+	bool bInterToEnemy;
+	void SetInterpToEnemy(bool Interp);
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Combat")
+	class AEnemy* CombatTarget;
+
+	FORCEINLINE	void SetCombatTarget(AEnemy* Target) { CombatTarget = Target; }
+
+	FRotator GetLookAtRotationYaw(FVector Target); // 타겟방향으로 돌기위해 FRotator구하는 함수
+
 	void ShiftKeyDown();
 
 	void ShiftKeyUp();

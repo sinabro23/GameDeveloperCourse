@@ -10,6 +10,8 @@
 #include "Weapon.h"
 #include "Kismet/GameplayStatics.h"
 #include "Sound/SoundCue.h"
+#include "Enemy.h"
+#include "Kismet/KismetMathLibrary.h"
 
 
 // Sets default values
@@ -72,6 +74,9 @@ AMain::AMain()
 	MinSprintStamina = 50.f;
 
 	bAttacking = false;
+
+	InterpSpeed = 15.f;
+	bInterToEnemy = false;
 }
 
 
@@ -188,7 +193,23 @@ void AMain::Tick(float DeltaTime)
 	default:
 		break;
 	}
+
+	if (bInterToEnemy && CombatTarget)
+	{
+		FRotator LookAtYaw = GetLookAtRotationYaw(CombatTarget->GetActorLocation());
+		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtYaw, DeltaTime, InterpSpeed); // R은 Rotator
+		
+		SetActorRotation(InterpRotation);
+	}
 }
+
+FRotator AMain::GetLookAtRotationYaw(FVector Target) // 내위치에서 타겟위치를 바라보는 로테이터를 구함
+{
+	FRotator LookAtRotation = UKismetMathLibrary::FindLookAtRotation(GetActorLocation(), Target);
+	FRotator LookAtRotationYaw(0.f, LookAtRotation.Yaw, 0.f); // 고개돌리기위해 Yaw값만 필요함
+	return LookAtRotationYaw;
+}
+
 
 // Called to bind functionality to input
 void AMain::SetupPlayerInputComponent(UInputComponent* PlayerInputComponent)
@@ -322,6 +343,7 @@ void AMain::LMBUp()
 	bLMBDown = false;
 }
 
+
 void AMain::SetEquippedWeapon(AWeapon* WeaponToSet)
 {
 	if (EquippedWeapon) // 기존에 장착한 무기가 있다면 파괴하라
@@ -337,6 +359,7 @@ void AMain::Attack()
 	if (!bAttacking) // 이미 공격하고있어도 왼클릭누르면 처음부터 다시공격하는거 방지
 	{
 		bAttacking = true;
+		SetInterpToEnemy(true);
 
 		UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
 		if (AnimInstance && CombatMontage)
@@ -366,6 +389,7 @@ void AMain::Attack()
 void AMain::AttackEnd()
 {
 	bAttacking = false;
+	SetInterpToEnemy(false);
 	if (bLMBDown) // 왼버튼 누르고 있으면 계속 공격하게
 	{
 		Attack();
@@ -378,4 +402,9 @@ void AMain::PlaySwingSound() // 애님노티파이로 애님BP에서 호출될 함수
 	{
 		UGameplayStatics::PlaySound2D(this, EquippedWeapon->SwingSound);
 	}
+
+}
+void AMain::SetInterpToEnemy(bool Interp)
+{
+	bInterToEnemy = Interp;
 }

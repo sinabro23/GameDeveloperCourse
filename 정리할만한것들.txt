@@ -391,3 +391,7 @@ void AWeapon::Equip(AMain* Character)
 	컴포넌트를 소켓 그자체에다 붙였음.
 	CombatCollision->AttachToComponent(GetMesh(), FAttachmentTransformRules::SnapToTargetIncludingScale, FName("EnemySocket"));
 }
+
+{
+	GetWorldTimerManager().ClearTimer(AttackTimer);
+}
