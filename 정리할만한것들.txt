@@ -395,3 +395,28 @@ void AWeapon::Equip(AMain* Character)
 {
 	GetWorldTimerManager().ClearTimer(AttackTimer);
 }
+
+{
+	// 몽타주로 노티파이 추가해서 그 노티파이를 이벤트그래프에서 추가해 아래 함수호출가능하게함
+
+	void AEnemy::DeathEnd()
+	{
+		GetMesh()->bPauseAnims = true; // 애니메이션 멈추기
+		GetMesh()->bNoSkeletonUpdate = true;
+	}
+}
+
+{
+	if (EnemyHealthBar)
+	{
+		// 월드상의 몬스터의 위치(Fvector)를 모니터 위치로 옮기기위함
+		// 화면은 좌측 상단이 (0,0) 우측하단이 (1,1)임
+		FVector2D PositionInViewport;
+		ProjectWorldLocationToScreen(EnemyLocation, PositionInViewport); // PositionInViewport에 값이나옴
+
+		FVector2D SizeInViewport(200.f, 25.f);
+
+		EnemyHealthBar->SetPositionInViewport(PositionInViewport);
+		EnemyHealthBar->SetDesiredSizeInViewport(SizeInViewport);
+	}
+}

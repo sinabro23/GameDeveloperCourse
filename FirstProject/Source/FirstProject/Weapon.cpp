@@ -71,6 +71,8 @@ void AWeapon::Equip(AMain* Character)
 {
 	if (Character)
 	{
+		SetInstigator(Character->GetController());
+
 		// 카메라가 무기에 걸려서 줌인같은거 안되게 하기위해
 		SkeletalMesh->SetCollisionResponseToChannel(
 			ECollisionChannel::ECC_Camera,
@@ -133,6 +135,11 @@ void AWeapon::CombatOnOverlapBegin(UPrimitiveComponent* OverlappedComponent, AAc
 			if (Enemy->HitSound)
 			{
 				UGameplayStatics::PlaySound2D(this, Enemy->HitSound);
+			}
+			
+			if (DamageTypeClass)
+			{
+				UGameplayStatics::ApplyDamage(Enemy, Damage, WeaponInstigator, this, DamageTypeClass);
 			}
 		}
 	}

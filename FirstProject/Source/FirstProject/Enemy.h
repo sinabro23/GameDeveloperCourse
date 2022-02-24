@@ -12,6 +12,7 @@ enum class EEnemyMovementStatus :uint8
 	EMS_Idle			UMETA(DesplayName = "Idle"),
 	EMS_MoveToTarget	UMETA(DesplayName = "MoveToTarget"),
 	EMS_Attacking		UMETA(DesplayName = "Attacking"),
+	EMS_Dead			UMETA(DesplayName = "Dead"),
 
 	EMS_Max				UMETA(DesplayName = "DefaultMax"),
 };
@@ -29,6 +30,7 @@ public:
 	EEnemyMovementStatus EnemyMovementStatus;
 
 	FORCEINLINE void SetEnemyMovementStatus(EEnemyMovementStatus Status) { EnemyMovementStatus = Status; }
+	FORCEINLINE EEnemyMovementStatus GetEnemyMovementStatus() { return EnemyMovementStatus; }
 
 	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "AI")
 	class USphereComponent* AgroSphere; // 몹이 유저 감지하는 범위
@@ -72,6 +74,15 @@ public:
 	float AttackMinTime;
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
 	float AttackMaxTime;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	TSubclassOf<UDamageType> DamageTypeClass; // Enemy_BP에서 설정해줘야함
+
+	FTimerHandle DeathTimer;
+
+	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "Combat")
+	float DeathDelay; //죽고나서 Destory되기까지 시간
+
 protected:
 	// Called when the game starts or when spawned
 	virtual void BeginPlay() override;
@@ -118,4 +129,18 @@ public:
 	UFUNCTION(BlueprintCallable)
 	void AttackEnd();
 
+	virtual float TakeDamage(
+		float DamageAmount,
+		struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator,
+		AActor* DamageCauser) override;
+
+	void Die();
+
+	UFUNCTION(BlueprintCallable)
+	void DeathEnd();
+
+	bool Alive();
+
+	void Disappear();
 };

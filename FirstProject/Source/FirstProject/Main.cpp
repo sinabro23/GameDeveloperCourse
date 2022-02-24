@@ -12,7 +12,7 @@
 #include "Sound/SoundCue.h"
 #include "Enemy.h"
 #include "Kismet/KismetMathLibrary.h"
-
+#include "MainPlayerController.h"
 
 // Sets default values
 AMain::AMain()
@@ -77,6 +77,8 @@ AMain::AMain()
 
 	InterpSpeed = 15.f;
 	bInterToEnemy = false;
+
+	bHasCombatTarget = false;
 }
 
 
@@ -99,6 +101,8 @@ void AMain::ShowPickupLocations()
 void AMain::BeginPlay()
 {
 	Super::BeginPlay();
+
+	MainPlayerController = Cast<AMainPlayerController>(GetController());
 }
 
 // Called every frame
@@ -107,7 +111,7 @@ void AMain::Tick(float DeltaTime)
 	Super::Tick(DeltaTime);
 
 	float DeltaStamina = StaminaDrainRate * DeltaTime; // 줄어드는지 늘어나는지 상관없이 일정값
-	
+
 	switch (StaminaStatus)
 	{
 	case EStaminaStatus::ESS_Normal:
@@ -198,8 +202,17 @@ void AMain::Tick(float DeltaTime)
 	{
 		FRotator LookAtYaw = GetLookAtRotationYaw(CombatTarget->GetActorLocation());
 		FRotator InterpRotation = FMath::RInterpTo(GetActorRotation(), LookAtYaw, DeltaTime, InterpSpeed); // R은 Rotator
-		
+
 		SetActorRotation(InterpRotation);
+	}
+
+	if (CombatTarget)
+	{
+		CombatTargetLocation = CombatTarget->GetActorLocation();
+		if (MainPlayerController)
+		{
+			MainPlayerController->EnemyLocation = CombatTargetLocation; // Set함수로 해야할것 같은데.
+		}
 	}
 }
 
@@ -287,8 +300,22 @@ void AMain::DecrementHealth(float Amount)
 
 }
 
+
+float AMain::TakeDamage(float DamageAmount, FDamageEvent const& DamageEvent, AController* EventInstigator, AActor* DamageCauser)
+{
+	DecrementHealth(DamageAmount);
+
+	return DamageAmount;
+}
+
 void AMain::Die()
 {
+	UAnimInstance* AnimInstance = GetMesh()->GetAnimInstance();
+	if (AnimInstance && CombatMontage)
+	{
+		AnimInstance->Montage_Play(CombatMontage, 1.f);
+		AnimInstance->Montage_JumpToSection(FName("Death"), CombatMontage);
+	}
 }
 
 void AMain::IncrementCoins(int32 Amount)

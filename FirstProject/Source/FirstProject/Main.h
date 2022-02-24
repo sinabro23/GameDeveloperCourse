@@ -35,6 +35,17 @@ public:
 	// Sets default values for this character's properties
 	AMain();
 
+	UPROPERTY(VisibleAnywhere , BlueprintReadOnly, Category = "Combat")
+	bool bHasCombatTarget;
+	
+	FORCEINLINE void SetHasCombatTarget(bool HasTarget) { bHasCombatTarget = HasTarget; }
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadWrite, Category = "Combat")
+	FVector CombatTargetLocation; // 적의 체력바 띄울 위치
+
+	UPROPERTY(VisibleAnywhere, BlueprintReadOnly, Category = "Controller")
+	class AMainPlayerController* MainPlayerController; // 몬스터 헬스바 위젯을 보기위해 추가했음
+
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "AI")
 	UParticleSystem* HitParticles; //피같은거
 
@@ -112,6 +123,14 @@ public:
 	void LookupAtRate(float Rate);
 
 	void DecrementHealth(float Amount);
+
+	// 액터에 있는 함수 오버라이드 // Enemy에서 ApplyDamage함수 실행되면 호출되는 함수
+	virtual float TakeDamage(
+		float DamageAmount,
+		struct FDamageEvent const& DamageEvent,
+		class AController* EventInstigator,
+		AActor* DamageCauser) override;
+
 	void Die();
 
 	void IncrementCoins(int32 Amount);
